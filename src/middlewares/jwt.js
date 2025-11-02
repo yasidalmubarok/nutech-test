@@ -4,14 +4,14 @@ import { createError as error } from '../utils/errorHandler.js';
 dotenv.config();
 
 export const verifyToken = (req, res, next) => {
-    const authHeader = req.headers.authorization;
+    const authHeader = req.headers['authorization'];
     if (!authHeader) {
-        return next(error(108, 'Unauthorized'));
+        return next(error(103, 'Token tidak tidak valid atau kadaluwarsa'));
     }
 
     const token = authHeader.split(' ')[1];
     if (!token) {
-        return next(error(108, 'Unauthorized'));
+        return next(error(103, 'Token tidak tidak valid atau kadaluwarsa'));
     }
 
     try {
@@ -19,7 +19,7 @@ export const verifyToken = (req, res, next) => {
         req.user = decoded;
         next();
     } catch (err) {
-        return next(error(108, 'Unauthorized'));
+        return next(error(103, 'Token tidak tidak valid atau kadaluwarsa'));
     }
 };
 

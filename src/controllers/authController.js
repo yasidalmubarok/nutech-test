@@ -8,15 +8,15 @@ export const registerController = async (req, res, next) => {
         const { email, firstName, lastName, password } = req.body;
 
         if (!email || !firstName || !lastName || !password) {
-            throw error(102, 'kolom harus diisi semua')
+            throw error(102, 'kolom harus diisi semua', 400);
         }
 
         if (!emailValidator(email)) {
-            throw error(102, 'Parameter email tidak sesuai format');
+            throw error(102, 'Parameter email tidak sesuai format', 400);
         }
 
         if (!passwordValidator(password)) {
-            throw error(102, 'Password harus minimal 8 karakter, mengandung huruf kecil, dan angka');
+            throw error(102, 'Password harus minimal 8 karakter, mengandung huruf kecil, dan angka', 400);
         }
         const user = await register( email, firstName, lastName, password );
         return successResponse(res, null, 'registrasi berhasil', 201);
@@ -30,11 +30,11 @@ export const loginController = async (req, res, next) => {
         const { email, password } = req.body;
         
         if (!email || !password) {
-            throw error(102, 'kolom harus diisi semua')
+            throw error(102, 'kolom harus diisi semua', 400);
         }
 
         if (!emailValidator(email)) {
-            throw error(102, 'Parameter email tidak sesuai format');
+            throw error(102, 'Parameter email tidak sesuai format', 400);
         }
 
         const { token } = await login(email, password);
