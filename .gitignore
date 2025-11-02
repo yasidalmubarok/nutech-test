@@ -25,6 +25,7 @@ temp/
 .out/
 .eslintcache
 *.tsbuildinfo
+docs/
 
 .DS_Store
 Thumbs.db

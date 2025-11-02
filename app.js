@@ -1,4 +1,6 @@
 import express from 'express';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './docs/swagger.js';
 import authRoutes from './src/routes/authRoute.js';
 import servRoutes from './src/routes/servRoute.js';
 import bannerRoutes from './src/routes/bannerRoute.js';
@@ -15,6 +17,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api', servRoutes);
 app.use('/api', bannerRoutes);
 app.use('/api', balanceRoutes);
+
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(errorHandler);
 
