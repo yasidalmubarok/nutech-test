@@ -5,12 +5,13 @@ export const createError = (status, message) => {
 };
 
 export const errorHandler = (err, req, res, next) => {
-    const status = err.status || 500;
+    const statusCode = err.statusCode || 500;
     const message = err.message || 'Internal Server Error';
-    
-    return res.status(status).json({
-        status,
-        message,
+
+    const response = {
+        status: err.status || statusCode,
+        message: message,
         data: null,
-    });
+    };
+    res.status(statusCode).json(response);
 };

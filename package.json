@@ -5,7 +5,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node app.js",
-    "dev": "NODE_ENV=development nodemon app.js"
+    "dev": "nodemon app.js"
   },
   "type": "module",
   "keywords": [],
@@ -17,11 +17,13 @@
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "bcryptjs": "^2.4.3",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "express-validator": "^7.3.0",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.16.3",
+    "pg-connection-string": "^2.6.4",
     "uuid": "^13.0.0"
   }
 }

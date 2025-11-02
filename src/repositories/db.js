@@ -1,6 +1,6 @@
 import { Pool } from 'pg';
-import parse from ('pg-connection-string');
-import dotenv from('dotenv');
+import parse from 'pg-connection-string';
+import dotenv from'dotenv';
 dotenv.config();
 
 const connection = process.env.DATABASE_URL
@@ -19,7 +19,7 @@ export const pool = new Pool({
     host: connection.host,
     port: connection.port,
     database: connection.database,
-    ssl: process.env.DB_SSL === 'required' ? { rejectUnauthorized: false } : false,
+    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
 });
 
 export async function query(text, params) {
@@ -31,5 +31,3 @@ export async function query(text, params) {
         client.release();
     }
 }
-
-module.exports = { pool, query };
