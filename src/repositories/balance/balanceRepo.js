@@ -11,6 +11,7 @@ export const getBalanceByUserID = async (userId) => {
         throw err;
     }
 };
+
 export const updateBalanceByUserID = async (userId, amount) => {
     const client = await (await import('../db.js')).pool.connect();
     try {

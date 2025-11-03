@@ -15,7 +15,7 @@ export const topUpBalance = async (userId, amount) => {
     const invoiceNumber = await generateInvoiceNumber();
     const transactionData = {
         invoiceNumber,
-        transaction_type: 'TOPUP',
+        transactionType: 'TOPUP',
         description: 'Top Up Balance',
         totalAmount: amount,
     };

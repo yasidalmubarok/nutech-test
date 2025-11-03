@@ -13,6 +13,12 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
+
+app.use((req, res, next) => {
+    console.log(`${req.method} ${req.path}`, req.body);
+    next();
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api', servRoutes);
 app.use('/api', bannerRoutes);

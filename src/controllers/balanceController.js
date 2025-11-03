@@ -1,10 +1,10 @@
 import { fetchBalance, topUpBalance, createTrx, fetchTransactionHistory } from "../services/balanceService.js";
 import { successResponse } from "../utils/response.js";
-import { createError as error } from "../utils/errorHandler.js";
+import * as validate from "../validators/validation.js";
 
 /**
  * @swagger
- * /api/balance:
+ * /balance:
  *   get:
  *     summary: Get user balance
  *     description: API untuk mendapatkan informasi balance / saldo terakhir dari User
@@ -61,7 +61,7 @@ export const getBalance = async (req, res, next) => {
 
 /**
  * @swagger
- * /api/topup:
+ * /topup:
  *   post:
  *     summary: Top up user balance
  *     description: API untuk melakukan top up balance / saldo dari User
@@ -138,12 +138,13 @@ export const topUp = async (req, res, next) => {
     try {
         const userId = req.user.id;
         const { top_up_amount } = req.body;
-        if (typeof top_up_amount !== 'number' || top_up_amount <= 0) {
-            throw error(102, 'Hanya angka dan lebih besar dari nol', 400);
+        const validateError = validate.validateTopUpInput({ top_up_amount });
+        if (validateError) {
+            throw (validateError);
         }
 
         const updatedBalance = await topUpBalance(userId, top_up_amount);
-        return successResponse(res, { balance: updatedBalance }, 'Top up berhasil', 200);
+        return successResponse(res, { updatedBalance }, 'Top up berhasil', 200);
     } catch (err) {
         next(err);
     }
@@ -151,7 +152,7 @@ export const topUp = async (req, res, next) => {
 
 /**
  * @swagger
- * /api/transaction:
+ * /transaction:
  *   post:
  *     summary: Create transaction
  *     description: API untuk melakukan transaksi pembayaran layanan
@@ -254,7 +255,7 @@ export const createTransaction = async (req, res, next) => {
 
 /**
  * @swagger
- * /api/transaction/history:
+ * /transaction/history:
  *   get:
  *     summary: Get transaction history
  *     description: API untuk mendapatkan informasi history transaksi

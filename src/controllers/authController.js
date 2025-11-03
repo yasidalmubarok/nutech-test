@@ -1,11 +1,10 @@
 import { register, login } from "../services/authService.js"
-import { createError as error } from "../utils/errorHandler.js";
-import { emailValidator, passwordValidator } from "../validators/validation.js";
+import * as validate from "../validators/validation.js";
 import { successResponse } from "../utils/response.js";
 
 /**
  * @swagger
- * /api/registration:
+ * /auth/register:
  *   post:
  *     summary: Register a new user
  *     description: API untuk melakukan registrasi user baru
@@ -19,18 +18,18 @@ import { successResponse } from "../utils/response.js";
  *             type: object
  *             required:
  *               - email
- *               - first_name
- *               - last_name
+ *               - firstName
+ *               - lastName
  *               - password
  *             properties:
  *               email:
  *                 type: string
  *                 format: email
  *                 example: kingmu@mufc.com
- *               first_name:
+ *               firstName:
  *                 type: string
  *                 example: King
- *               last_name:
+ *               lastName:
  *                 type: string
  *                 example: Mufc
  *               password:
@@ -38,8 +37,8 @@ import { successResponse } from "../utils/response.js";
  *                 format: password
  *                 example: kingmu1234
  *     responses:
- *       200:
- *         description: Registrasi berhasil
+ *       201:
+ *         description: Registrasi berhasil silahkan login
  *         content:
  *           application/json:
  *             schema:
@@ -47,7 +46,7 @@ import { successResponse } from "../utils/response.js";
  *               properties:
  *                 status:
  *                   type: integer
- *                   example: 0
+ *                   example: 201
  *                 message:
  *                   type: string
  *                   example: Registrasi berhasil silahkan login
@@ -63,30 +62,26 @@ import { successResponse } from "../utils/response.js";
  *               properties:
  *                 status:
  *                   type: integer
- *                   example: 102
+ *                   example: 400
  *                 message:
  *                   type: string
  *                   example: Parameter email tidak sesuai format
  *                 data:
  *                   type: null
  *                   example: null
+ *      
  */
 export const registerController = async (req, res, next) => {
     try {
         const { email, firstName, lastName, password } = req.body;
 
-        if (!email || !firstName || !lastName || !password) {
-            throw error(102, 'kolom harus diisi semua', 400);
+        const validationError = validate.validateRegisterInput({ email, firstName, lastName, password });
+        if (validationError) {
+            throw validationError;
         }
 
-        if (!emailValidator(email)) {
-            throw error(102, 'Parameter email tidak sesuai format', 400);
-        }
-
-        if (!passwordValidator(password)) {
-            throw error(102, 'Password harus minimal 8 karakter, mengandung huruf kecil, dan angka', 400);
-        }
         const user = await register( email, firstName, lastName, password );
+
         return successResponse(res, null, 'registrasi berhasil', 201);
     } catch (error) {
         next(error);
@@ -95,7 +90,7 @@ export const registerController = async (req, res, next) => {
 
 /**
  * @swagger
- * /api/login:
+ * /auth/login:
  *   post:
  *     summary: Login user
  *     description: API untuk melakukan login dan mendapatkan JWT token
@@ -118,7 +113,7 @@ export const registerController = async (req, res, next) => {
  *               password:
  *                 type: string
  *                 format: password
- *                 example: abcdef1234
+ *                 example: kingmu1234
  *     responses:
  *       200:
  *         description: Login berhasil
@@ -129,7 +124,7 @@ export const registerController = async (req, res, next) => {
  *               properties:
  *                 status:
  *                   type: integer
- *                   example: 0
+ *                   example: 200
  *                 message:
  *                   type: string
  *                   example: Login Sukses
@@ -139,6 +134,22 @@ export const registerController = async (req, res, next) => {
  *                     token:
  *                       type: string
  *                       example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *       400:
+ *         description: Bad request - Kolom harus diisi semua
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 400
+ *                 message:
+ *                   type: string
+ *                   example: Kolom harus diisi semua
+ *                 data:
+ *                   type: null
+ *                   example: null
  *       401:
  *         description: Unauthorized - Email atau password salah
  *         content:
@@ -148,7 +159,7 @@ export const registerController = async (req, res, next) => {
  *               properties:
  *                 status:
  *                   type: integer
- *                   example: 103
+ *                   example: 401
  *                 message:
  *                   type: string
  *                   example: Username atau password salah
@@ -159,16 +170,14 @@ export const registerController = async (req, res, next) => {
 export const loginController = async (req, res, next) => {
     try {
         const { email, password } = req.body;
-        
-        if (!email || !password) {
-            throw error(102, 'kolom harus diisi semua', 400);
-        }
 
-        if (!emailValidator(email)) {
-            throw error(102, 'Parameter email tidak sesuai format', 400);
+        const validationError = validate.validateLoginInput({ email, password });
+        if (validationError) {
+            throw validationError;
         }
 
         const { token } = await login(email, password);
+
         return successResponse(res, { token }, 'login sukses', 200);
     } catch (error) {
         next(error);
