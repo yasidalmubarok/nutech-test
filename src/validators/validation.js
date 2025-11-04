@@ -37,13 +37,13 @@ export const validateLoginInput = (input) => {
 };
 
 export const validateTopUpInput = (input) => {
-    const { top_up_amount } = input;
+    const { topUpAmount } = input;
 
-    if (!top_up_amount === undefined){
+    if (topUpAmount === undefined){
         throw error(400, 'Parameter tidak boleh kosong')
     }
 
-    if (typeof top_up_amount !== 'number' || top_up_amount <= 0) {
+    if (typeof topUpAmount !== 'number' || topUpAmount <= 0) {
         throw error(400, 'Hanya angka dan lebih besar dari nol');
     }
 

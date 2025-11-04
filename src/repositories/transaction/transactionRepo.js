@@ -58,17 +58,32 @@ export const formatDateForInvoice = (date) => {
     return `${day}${month}${year}`;
 };
 
-export const getTransactionHistoryByUserID = async (userId) => {
+export const getTransactionHistoryByUserID = async (userId, offset = 0, limit = 10) => {
     const getSql = `SELECT id, invoice_number, transaction_type, description, total_amount, created_on
                     FROM transactions
                     WHERE user_id = $1
-                    ORDER BY created_on DESC`;
-    const values = [userId];
+                    ORDER BY created_on DESC
+                    OFFSET $2 LIMIT $3`;
+    const values = [userId, offset, limit];
     try {
         const result = await query(getSql, values);
         return result.rows;
     } catch (err) {
         console.error('Error fetching transaction history:', err);
+        throw err;
+    }
+};
+
+export const getTransactionCountByUserID = async (userId) => {
+    const countSql = `SELECT COUNT(*) AS total
+                      FROM transactions
+                      WHERE user_id = $1`;
+    const values = [userId];
+    try {
+        const result = await query(countSql, values);
+        return result.rows[0].total;
+    } catch (err) {
+        console.error('Error fetching transaction count:', err);
         throw err;
     }
 };

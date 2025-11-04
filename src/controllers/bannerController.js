@@ -3,7 +3,7 @@ import { successResponse } from "../utils/response.js";
 
 /**
  * @swagger
- * /banner:
+ * /api/banner:
  *   get:
  *     summary: Get all banners
  *     description: API untuk mendapatkan list banner

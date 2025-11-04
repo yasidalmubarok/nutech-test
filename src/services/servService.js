@@ -5,6 +5,6 @@ export const fetchAllServices = async () => {
         const services = await getAllServices();
         return services;
     } catch (error) {
-        throw error(500, 'Internal Server Error');
+        throw error;
     }
 };

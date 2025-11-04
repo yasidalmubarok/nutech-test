@@ -3,7 +3,7 @@ import { successResponse } from "../utils/response.js";
 
 /**
  * @swagger
- * /services:
+ * /api/services:
  *   get:
  *     summary: Get all services
  *     description: API untuk mendapatkan list Service/Layanan PPOB

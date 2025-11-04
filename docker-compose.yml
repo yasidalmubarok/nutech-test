@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nutech-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - DATABASE_URL=postgresql://postgres.ttorzmaffqnaindfjrcf:takehometest@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres
+      - JWT_SECRET=Str0ngJWTSecretKey
+      - JWT_EXPIRES_IN=12h
+      - SALT_ROUNDS=10
+      - DB_HOST=aws-1-ap-southeast-2.pooler.supabase.com
+      - DB_PORT=6543
+      - DB_USER=postgres.ttorzmaffqnaindfjrcf
+      - DB_PASSWORD=takehometest
+      - DB_NAME=postgres
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run dev
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15-alpine
+    container_name: nutech-db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres.ttorzmaffqnaindfjrcf
+      - POSTGRES_PASSWORD=takehometest
+      - POSTGRES_DB=postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

@@ -4,7 +4,7 @@ import { successResponse } from "../utils/response.js";
 
 /**
  * @swagger
- * /auth/register:
+ * /api/auth/register:
  *   post:
  *     summary: Register a new user
  *     description: API untuk melakukan registrasi user baru
@@ -90,7 +90,7 @@ export const registerController = async (req, res, next) => {
 
 /**
  * @swagger
- * /auth/login:
+ * /api/auth/login:
  *   post:
  *     summary: Login user
  *     description: API untuk melakukan login dan mendapatkan JWT token

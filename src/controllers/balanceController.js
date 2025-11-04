@@ -1,10 +1,11 @@
 import { fetchBalance, topUpBalance, createTrx, fetchTransactionHistory } from "../services/balanceService.js";
+import { createError } from "../utils/errorHandler.js";
 import { successResponse } from "../utils/response.js";
 import * as validate from "../validators/validation.js";
 
 /**
  * @swagger
- * /balance:
+ * /api/balance:
  *   get:
  *     summary: Get user balance
  *     description: API untuk mendapatkan informasi balance / saldo terakhir dari User
@@ -61,7 +62,7 @@ export const getBalance = async (req, res, next) => {
 
 /**
  * @swagger
- * /topup:
+ * /api/topup:
  *   post:
  *     summary: Top up user balance
  *     description: API untuk melakukan top up balance / saldo dari User
@@ -76,9 +77,9 @@ export const getBalance = async (req, res, next) => {
  *           schema:
  *             type: object
  *             required:
- *               - top_up_amount
+ *               - topUpAmount
  *             properties:
- *               top_up_amount:
+ *               topUpAmount:
  *                 type: number
  *                 example: 100000
  *     responses:
@@ -137,13 +138,13 @@ export const getBalance = async (req, res, next) => {
 export const topUp = async (req, res, next) => {
     try {
         const userId = req.user.id;
-        const { top_up_amount } = req.body;
-        const validateError = validate.validateTopUpInput({ top_up_amount });
+        const { topUpAmount } = req.body;
+        const validateError = validate.validateTopUpInput({ topUpAmount });
         if (validateError) {
             throw (validateError);
         }
 
-        const updatedBalance = await topUpBalance(userId, top_up_amount);
+        const updatedBalance = await topUpBalance(userId, topUpAmount);
         return successResponse(res, { updatedBalance }, 'Top up berhasil', 200);
     } catch (err) {
         next(err);
@@ -152,7 +153,7 @@ export const topUp = async (req, res, next) => {
 
 /**
  * @swagger
- * /transaction:
+ * /api/transaction:
  *   post:
  *     summary: Create transaction
  *     description: API untuk melakukan transaksi pembayaran layanan
@@ -167,9 +168,9 @@ export const topUp = async (req, res, next) => {
  *           schema:
  *             type: object
  *             required:
- *               - service_code
+ *               - serviceCode
  *             properties:
- *               service_code:
+ *               serviceCode:
  *                 type: string
  *                 example: PLN
  *     responses:
@@ -244,9 +245,9 @@ export const topUp = async (req, res, next) => {
 export const createTransaction = async (req, res, next) => {
     try {
         const userId = req.user.id;
-        const { service_code } = req.body;
+        const { serviceCode } = req.body;
 
-        const updatedBalance = await createTrx(userId, service_code);
+        const updatedBalance = await createTrx(userId, serviceCode);
         return successResponse(res, { updatedBalance }, 'Transaksi berhasil', 200);
     } catch (err) {
         next(err);
@@ -255,7 +256,7 @@ export const createTransaction = async (req, res, next) => {
 
 /**
  * @swagger
- * /transaction/history:
+ * /api/transaction/history:
  *   get:
  *     summary: Get transaction history
  *     description: API untuk mendapatkan informasi history transaksi
@@ -340,13 +341,25 @@ export const createTransaction = async (req, res, next) => {
 export const getTransactionHistory = async (req, res, next) => {
     try {
         const userId = req.user.id;
-        const history = await fetchTransactionHistory(userId);
-
-        const page = parseInt(req.query.page) || 1;
+        
         const limit = parseInt(req.query.limit) || 10;
-        const offset = (page - 1) * limit;
+        const offset = parseInt(req.query.offset) || 0;
+        if (offset < 0 || limit <= 0) {
+            throw createError(400, 'invalid pagination parameters');
+        }
 
-        return successResponse(res, { offset, limit, record: history }, 'Transaction history fetched successfully', 200);
+        const history = await fetchTransactionHistory(userId, offset, limit);
+
+        return successResponse(
+            res, 
+            { 
+                offset: history.offset,
+                limit: history.limit,
+                record: history.records 
+            }, 
+            'Transaction history fetched successfully', 
+            200
+        );
     } catch (err) {
         next(err);
     }

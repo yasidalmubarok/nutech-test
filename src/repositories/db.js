@@ -3,23 +3,14 @@ import parse from 'pg-connection-string';
 import dotenv from'dotenv';
 dotenv.config();
 
-const connection = process.env.DATABASE_URL
-    ? parse(process.env.DATABASE_URL)
-    : {
-        user: process.env.DB_USER,
-        password: process.env.DB_PASSWORD,
-        host: process.env.DB_HOST,
-        port: process.env.DB_PORT,
-        database: process.env.DB_NAME,
-    };
-
 export const pool = new Pool({
-    user: connection.user,
-    password: connection.password,
-    host: connection.host,
-    port: connection.port,
-    database: connection.database,
-    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+        rejectUnauthorized: false
+    },
+    max: 20,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 10000,
 });
 
 export async function query(text, params) {
@@ -27,7 +18,19 @@ export async function query(text, params) {
     try {
         const res = await client.query(text, params);
         return res;
+    } catch (err) {
+        console.error('Database query error:', err);
+        throw err;
     } finally {
         client.release();
     }
 }
+
+pool.on('error', (err, client) => {
+    console.error('Unexpected error on idle client', err);
+    process.exit(-1);
+});
+
+pool.on('connect', (client) => {
+    console.log('New client connected to the database');
+});
